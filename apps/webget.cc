@@ -3,6 +3,7 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <sstream>
 
 using namespace std;
 
@@ -15,10 +16,23 @@ void get_URL(const string &host, const string &path) {
 
     // Then you'll need to print out everything the server sends back,
     // (not just one call to read() -- everything) until you reach
-    // the "eof" (end of file).
+    // the "eof" (end of file)
 
-    cerr << "Function called: get_URL(" << host << ", " << path << ").\n";
-    cerr << "Warning: get_URL() has not been implemented yet.\n";
+    // 建立与服务器ip与端口号80的TCP连接
+    TCPSocket clientSocket;
+    Address serverAddress(host, "http");
+    clientSocket.connect(serverAddress);
+
+    // 构建http请求
+    ostringstream stream;
+    stream << "GET " << path << " HTTP/1.1\r\n" << "Host: " << host << "\r\n" << "Connection: close\r\n" << "\r\n";
+    clientSocket.write(stream.str());
+
+    // 获取http响应
+    while (!clientSocket.eof()) {
+        cout << clientSocket.read();
+    }
+
 }
 
 int main(int argc, char *argv[]) {
