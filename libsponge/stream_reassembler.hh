@@ -5,15 +5,30 @@
 
 #include <cstdint>
 #include <string>
+#include <list>
+#include <memory>
 
 //! \brief A class that assembles a series of excerpts from a byte stream (possibly out of order,
 //! possibly overlapping) into an in-order byte stream.
 class StreamReassembler {
   private:
     // Your code here -- add private members as necessary.
+    struct SubstringEntry {
+        const std::string data;
+        const uint64_t index;
+        const bool eof;
+
+        SubstringEntry(const std::string& _data, const uint64_t _index, const bool _eof) : data(_data), index(_index), eof(_eof) {}
+
+    };
 
     ByteStream _output;  //!< The reassembled in-order byte stream
     size_t _capacity;    //!< The maximum number of bytes
+    std::list<std::shared_ptr<SubstringEntry>> _unassembled_list;
+
+    const std::string* cut_overlap_head(const std::string *new_string_ptr, uint64_t& new_index, const std::string& data_str, const uint64_t& data_index);
+
+    const std::string* cut_overlap_tail(const std::string *new_string_ptr, uint64_t& new_index, const uint64_t& data_index);
 
   public:
     //! \brief Construct a `StreamReassembler` that will store up to `capacity` bytes.
